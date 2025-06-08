@@ -2,9 +2,9 @@
 import { useState, useEffect } from "react";
 
 interface Item {
-  nome: string;
+  nome: string | null;
   valor: number;
-  quantidade: number;
+  quantidade: number | null;
 }
 
 const LOCAL_STORAGE_KEY = "lista-compras-itens";
@@ -53,7 +53,7 @@ export default function Home() {
   }
 
   function adicionarLinha() {
-    setItens((prev) => [...prev, { nome: "", valor: 0, quantidade: 0 }]);
+    setItens((prev) => [...prev, { nome: null, valor: 0, quantidade: null }]);
   }
 
   function formatarMoeda(valor: number | string) {
@@ -86,7 +86,10 @@ export default function Home() {
   });
 
   const existeLinhaPadrao = itens.some(
-    (item) => item.nome === "" && item.valor === 0 && item.quantidade === 0
+    (item) =>
+      (item.nome === null || item.nome === "") &&
+      item.valor === 0 &&
+      (item.quantidade === null || item.quantidade === 0)
   );
 
   return (
@@ -133,7 +136,7 @@ export default function Home() {
                       <td className="px-2 py-2 text-white">
                         <input
                           className="w-full bg-transparent text-white border-none outline-none placeholder:text-[#b8c7e0]"
-                          value={item.nome}
+                          value={item.nome ?? ""}
                           onChange={(e) =>
                             handleItemChange(
                               originalIdx,
@@ -167,7 +170,7 @@ export default function Home() {
                           className="w-full bg-transparent text-right text-white border-none outline-none placeholder:text-[#b8c7e0]"
                           type="number"
                           min="1"
-                          value={item.quantidade}
+                          value={item.quantidade ?? ""}
                           onChange={(e) =>
                             handleItemChange(
                               originalIdx,
