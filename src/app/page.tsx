@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 
 interface Item {
   nome: string | null;
-  valor: number;
+  valor: number | null;
   quantidade: number | null;
 }
 
@@ -53,7 +53,14 @@ export default function Home() {
   }
 
   function adicionarLinha() {
-    setItens((prev) => [...prev, { nome: null, valor: 0, quantidade: null }]);
+    setItens((prev) => [
+      ...prev,
+      { nome: null, valor: null, quantidade: null },
+    ]);
+  }
+
+  function removerItem(idx: number) {
+    setItens((prev) => prev.filter((_, i) => i !== idx));
   }
 
   function formatarMoeda(valor: number | string) {
@@ -73,22 +80,23 @@ export default function Home() {
     return parseFloat(somenteNumeros) / 100;
   }
 
-  const total = itens.reduce(
-    (acc, item) => acc + item.valor * item.quantidade,
-    0
-  );
+  const total = itens.reduce((acc, item) => {
+    const valor = item.valor ?? 0;
+    const quantidade = item.quantidade ?? 0;
+    return acc + valor * quantidade;
+  }, 0);
 
   // Ordenar itens: valor > 0 primeiro
   const itensOrdenados = [...itens].sort((a, b) => {
-    if (a.valor > 0 && b.valor === 0) return -1;
-    if (a.valor === 0 && b.valor > 0) return 1;
+    if ((a.valor ?? 0) > 0 && (b.valor ?? 0) === 0) return -1;
+    if ((a.valor ?? 0) === 0 && (b.valor ?? 0) > 0) return 1;
     return 0;
   });
 
   const existeLinhaPadrao = itens.some(
     (item) =>
       (item.nome === null || item.nome === "") &&
-      item.valor === 0 &&
+      (item.valor === null || item.valor === 0) &&
       (item.quantidade === null || item.quantidade === 0)
   );
 
@@ -114,12 +122,15 @@ export default function Home() {
                 <th className="px-2 py-2 font-medium text-right rounded-tr-md">
                   Qtd.
                 </th>
+                <th className="px-2 py-2 font-medium text-center rounded-tr-md">
+                  Ação
+                </th>
               </tr>
             </thead>
             <tbody>
               {itensOrdenados.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="text-center py-4 text-[#b8c7e0]">
+                  <td colSpan={4} className="text-center py-4 text-[#b8c7e0]">
                     Nenhum item adicionado
                   </td>
                 </tr>
@@ -130,7 +141,7 @@ export default function Home() {
                     <tr
                       key={idx}
                       className={`border-b border-[#2e4a6f] last:border-b-0 ${
-                        item.valor === 0 ? "bg-[#223c5c]" : ""
+                        (item.valor ?? 0) === 0 ? "bg-[#223c5c]" : ""
                       }`}
                     >
                       <td className="px-2 py-2 text-white">
@@ -152,7 +163,9 @@ export default function Home() {
                           className="w-full bg-transparent text-right text-white border-none outline-none placeholder:text-[#b8c7e0]"
                           type="text"
                           inputMode="decimal"
-                          value={formatarMoeda(item.valor)}
+                          value={
+                            item.valor !== null ? formatarMoeda(item.valor) : ""
+                          }
                           onChange={(e) => {
                             const valor = desformatarMoeda(e.target.value);
                             handleItemChange(
@@ -180,6 +193,15 @@ export default function Home() {
                           }
                           placeholder="Qtd."
                         />
+                      </td>
+                      <td className="px-2 py-2 text-center text-white">
+                        <button
+                          onClick={() => removerItem(originalIdx)}
+                          className="text-red-400 hover:text-red-300 transition-colors"
+                          title="Remover item"
+                        >
+                          🗑️
+                        </button>
                       </td>
                     </tr>
                   );
