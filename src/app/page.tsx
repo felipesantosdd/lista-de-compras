@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 
 interface Item {
+  id: string;
   nome: string | null;
   valor: number | null;
   quantidade: number | null;
@@ -55,7 +56,7 @@ export default function Home() {
   function adicionarLinha() {
     setItens((prev) => [
       ...prev,
-      { nome: null, valor: null, quantidade: null },
+      { id: Date.now().toString(), nome: null, valor: null, quantidade: null },
     ]);
   }
 
@@ -135,11 +136,11 @@ export default function Home() {
                   </td>
                 </tr>
               ) : (
-                itensOrdenados.map((item, idx) => {
-                  const originalIdx = itens.findIndex((i) => i === item);
+                itensOrdenados.map((item) => {
+                  const originalIdx = itens.findIndex((i) => i.id === item.id);
                   return (
                     <tr
-                      key={idx}
+                      key={item.id}
                       className={`border-b border-[#2e4a6f] last:border-b-0 ${
                         (item.valor ?? 0) === 0 ? "bg-[#223c5c]" : ""
                       }`}
